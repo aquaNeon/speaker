@@ -69,11 +69,13 @@ export function Model({ setOrbitControlsEnabled, ...props }) {
   const { nodes, materials } = useGLTF('/models/mojang3.glb');
   const antennaeRef = useRef();
   const dialRef = useRef();
+  const fmIndicatorRef = useRef();
   const [isDragging, setIsDragging] = useState(false);
   const [rotationZ, setRotationZ] = useState(-1.558); // Initial Z rotation
   const [rotationY, setRotationY] = useState(0.395); // Initial Y rotation
   const [dialRotation, setDialRotation] = useState(0);
   const [startAngle, setStartAngle] = useState(0);
+  const [fmIndicatorPosition, setFmIndicatorPosition] = useState(0);
 
   const handlePointerDown = (e) => {
     e.stopPropagation();
@@ -115,14 +117,21 @@ export function Model({ setOrbitControlsEnabled, ...props }) {
   const handleDialPointerMove = useCallback((e) => {
     if (isDragging) {
       const angle = Math.atan2(e.point.z, e.point.x);
-      const newRotation = angle - startAngle;
+      const newRotation = (angle - startAngle) * 2; // Increased rotation speed
       setDialRotation(newRotation);
+      
+      // Update FM indicator position based on dial rotation
+      const sensitivity = 0.05; // Adjust this value to control the indicator movement sensitivity
+      setFmIndicatorPosition(newRotation * sensitivity);
     }
   }, [isDragging, startAngle]);
 
   useFrame(() => {
     if (dialRef.current) {
       dialRef.current.rotation.y = dialRotation;
+    }
+    if (fmIndicatorRef.current) {
+      fmIndicatorRef.current.position.y = fmIndicatorPosition;
     }
     // Keep any existing frame updates for antennae here
   });
@@ -160,7 +169,7 @@ export function Model({ setOrbitControlsEnabled, ...props }) {
         onPointerUp={handleDialPointerUp}
         onPointerMove={handleDialPointerMove}
       />
-      <mesh geometry={nodes.FM_Line.geometry} material={buttonsMaterial} position={[0.44, 0.2, 0.308]} rotation={[Math.PI, 0, Math.PI]} scale={[-0.014, -0.002, 0]} />
+      <mesh geometry={nodes.FM_Line.geometry} material={emissionMaterial} position={[0.44, 0.2, 0.308]} rotation={[Math.PI, 0, Math.PI]} scale={[-0.014, -0.002, 0]} />
       <group position={[0.44, -0.315, 0.307]} rotation={[Math.PI / 2, 0, 0]} scale={0.007}>
         <mesh geometry={nodes.Torus004.geometry} material={roughSteelMaterial} />
         <mesh geometry={nodes.Torus004_1.geometry} material={emissionMaterial} />
@@ -181,9 +190,14 @@ export function Model({ setOrbitControlsEnabled, ...props }) {
       <mesh geometry={nodes.Screws.geometry} material={roughSteelMaterial} position={[0.406, 0.054, -0.249]} rotation={[Math.PI / 2, 0, 0]} scale={1.217} />
       <mesh geometry={nodes.speaker.geometry} material={bodyMaterial} position={[-0.383, 0.055, 0]} />
       <mesh geometry={nodes.TEXT.geometry} material={textMaterial} position={[0.551, 0.31, 0.308]} rotation={[Math.PI, 0, Math.PI]} scale={[-0.029, -0.002, 0]} />
+      <group position={[0.5, 0.5, 0.2]}> {/* Adjust this position to place the indicator near the dial */}
+        <mesh ref={fmIndicatorRef}>
+          <boxGeometry args={[0.02, 0.1, 0.01]} /> {/* Adjust size as needed */}
+          <meshStandardMaterial color="red" />
+        </mesh>
+      </group>
     </group>
   );
 }
 
 useGLTF.preload('/models/mojang3.glb');
-

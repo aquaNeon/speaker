@@ -17,7 +17,7 @@ const InteractiveRadio = () => {
   return (
     <>
       <mesh ref={ref} position={[0, 0, 0.5]} scale={2} >
-        <Model rotation={[Math.PI * 0.25, Math.PI *0.2, 0]} scale={1.5}/>
+        <Model rotation={[Math.PI * 0.15, Math.PI *0.1, 0]} scale={1.5}/>
         {/* <MeshTransmissionMaterial 
           thickness={1.5}
           backsideThickness={1}
