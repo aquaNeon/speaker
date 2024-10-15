@@ -9,7 +9,7 @@ function App() {
       <div className="App">
         <Canvas>
           <Experience />
-          <OrbitControls />
+          {/* <OrbitControls /> */}
           <Environment preset="city" environmentIntensity={1.8}/>
         </Canvas>
       </div>
